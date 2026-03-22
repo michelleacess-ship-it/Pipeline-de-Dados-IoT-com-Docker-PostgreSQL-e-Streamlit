@@ -8,3 +8,6 @@ df = pd.read_csv("../data/temperature_readings.csv")
 df.to_sql("temperature_readings", engine, if_exists="replace", index=False)
 
 print("Dados inseridos!")
+
+df = df.dropna()  # remove valores nulos
+df = df[(df["temperature"] > 0) & (df["temperature"] < 100)]  # remove valores absurdos
