@@ -1,0 +1,72 @@
+iot-temperature-pipeline
+│
+├── data
+│   └── temperature_readings.csv
+│
+├── src
+│   ├── pipeline.py
+│   └── dashboard.py
+│
+├── sql
+│   └── views.sql
+│
+├── docs
+│   └── dashboard_prints.png
+│
+├── README.md
+└── requirements.txt
+
+device_id,temperature,timestamp
+sensor_1,22.5,2024-01-01 10:00:00
+
+import pandas as pd
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://postgres:1234@localhost:5432/iot")
+
+df = pd.read_csv("../data/temperature_readings.csv")
+
+df.to_sql("temperature_readings", engine, if_exists="replace", index=False)
+
+print("Dados inseridos!")
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://postgres:1234@localhost:5432/iot")
+
+def load_data(view):
+    return pd.read_sql(f"SELECT * FROM {view}", engine)
+
+st.title("Dashboard IoT")
+
+df_avg = load_data("avg_temp_por_dispositivo")
+st.plotly_chart(px.bar(df_avg, x="device_id", y="avg_temp"))
+
+df_hora = load_data("leituras_por_hora")
+st.plotly_chart(px.line(df_hora, x="hora", y="contagem"))
+
+CREATE VIEW avg_temp_por_dispositivo AS
+SELECT device_id, AVG(temperature) AS avg_temp
+FROM temperature_readings
+GROUP BY device_id;
+
+CREATE VIEW leituras_por_hora AS
+SELECT EXTRACT(HOUR FROM timestamp) AS hora,
+COUNT(*) AS contagem
+FROM temperature_readings
+GROUP BY hora;
+
+# Pipeline IoT
+
+Projeto de pipeline de dados com IoT utilizando Python, Docker e PostgreSQL.
+
+pandas
+sqlalchemy
+psycopg2-binary
+streamlit
+plotly
+
+
