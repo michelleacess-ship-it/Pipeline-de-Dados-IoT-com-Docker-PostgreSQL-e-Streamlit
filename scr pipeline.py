@@ -5,11 +5,6 @@ engine = create_engine("postgresql://postgres:1234@localhost:5432/iot")
 
 df = pd.read_csv("../data/temperature_readings.csv")
 
-df.to_sql(
-    "temperature_readings",
-    engine,
-    if_exists="replace",
-    index=False
-)
+df.to_sql("temperature_readings", engine, if_exists="replace", index=False)
 
-print("Pipeline executado com sucesso.")
+print("Dados inseridos!")
